@@ -14,15 +14,15 @@ export async function CreateGoalCompletion({ goalId }: CreateGoalCompletionReque
 
 	const goalCompletionCounts = db.$with('goal_completion_counts').as(
 		db.select({
-				goalId: goalCompletions.goalId,
-				completionCount: count(goalCompletions.id).as('completionCount'),
+			goalId: goalCompletions.goalId,
+			completionCount: count(goalCompletions.id).as('completionCount'),
 		})
-				.from(goalCompletions)
-				.where(and(
-						gte(goalCompletions.createdAt, firstDayOfWeek),
-						lte(goalCompletions.createdAt, lastDayOfWeek)
-				))
-				.groupBy(goalCompletions.goalId)
+			.from(goalCompletions)
+			.where(and(
+				gte(goalCompletions.createdAt, firstDayOfWeek),
+				lte(goalCompletions.createdAt, lastDayOfWeek)
+			))
+			.groupBy(goalCompletions.goalId)
 	)
 
 	const result = await db.with(goalCompletionCounts)
@@ -34,12 +34,22 @@ export async function CreateGoalCompletion({ goalId }: CreateGoalCompletionReque
 		})
 		.from(goals)
 		.leftJoin(goalCompletionCounts, eq(goalCompletionCounts, goals.id))
+		.where(eq(goals.id, goalId))
+		.limit(1)
 
-	// const result = await db.insert(goalCompletions).values({ goalId }).returning()
+	const { completitionCount, desiredWeeklyFrequency } = result[0]
 
-	// const goalCompletion = result[0]
+	if (completitionCount >= desiredWeeklyFrequency) {
+		throw new Error('Goal already completed this week!')
+	}
+
+	const insertResult = await db
+		.insert(goalCompletions)
+		.values({ goalId })
+		.returning()
+	const goalCompletion = insertResult[0]
 
 	return {
-			result
+		goalCompletion,
 	}
 }
