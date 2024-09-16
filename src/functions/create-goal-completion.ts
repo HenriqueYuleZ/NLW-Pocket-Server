@@ -20,7 +20,8 @@ export async function CreateGoalCompletion({ goalId }: CreateGoalCompletionReque
 			.from(goalCompletions)
 			.where(and(
 				gte(goalCompletions.createdAt, firstDayOfWeek),
-				lte(goalCompletions.createdAt, lastDayOfWeek)
+				lte(goalCompletions.createdAt, lastDayOfWeek),
+				eq(goalCompletions.goalId, goalId)
 			))
 			.groupBy(goalCompletions.goalId)
 	)
@@ -28,18 +29,18 @@ export async function CreateGoalCompletion({ goalId }: CreateGoalCompletionReque
 	const result = await db.with(goalCompletionCounts)
 		.select({
 			desiredWeeklyFrequency: goals.desiredWeeklyFrequency,
-			completitionCount: sql/*sql*/`
+			completionCount: sql/*sql*/`
 					COALESCE(${goalCompletionCounts.completionCount}, 0)
 			`.mapWith(Number), // convertendo para número e 0 em vez de null
 		})
 		.from(goals)
-		.leftJoin(goalCompletionCounts, eq(goalCompletionCounts, goals.id))
+		.leftJoin(goalCompletionCounts, eq(goalCompletionCounts.goalId, goals.id))
 		.where(eq(goals.id, goalId))
 		.limit(1)
 
-	const { completitionCount, desiredWeeklyFrequency } = result[0]
+	const { completionCount, desiredWeeklyFrequency } = result[0]
 
-	if (completitionCount >= desiredWeeklyFrequency) {
+	if (completionCount >= desiredWeeklyFrequency) {
 		throw new Error('Goal already completed this week!')
 	}
 
