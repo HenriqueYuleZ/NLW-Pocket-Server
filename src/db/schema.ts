@@ -13,3 +13,10 @@ export const goalCompletions = pgTable('goal_completions', {
     goalId: text('goal_id').notNull().references(() => goals.id),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow().$defaultFn(() => new Date(Date.now() - 24 * 60 * 60 * 1000)),
 })
+
+export const users = pgTable('users', {
+    id: text('id').primaryKey().$defaultFn(() => createId()),
+    username: text('username').notNull(),
+    password: text('password').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow().$defaultFn(() => new Date(Date.now() - 24 * 60 * 60 * 1000)),
+})
