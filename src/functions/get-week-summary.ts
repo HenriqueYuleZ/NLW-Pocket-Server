@@ -3,24 +3,30 @@ import { db } from "../db";
 import { goalCompletions, goals } from "../db/schema";
 import dayjs from "dayjs";
 
-export async function getWeekSummary() {
+interface GetWeekSummaryRequest {
+    userId: string;
+}
+
+export async function getWeekSummary({ userId }: GetWeekSummaryRequest) {
     const firstDayOfWeek = dayjs().startOf('week').toDate();
     const lastDayOfWeek = dayjs().endOf('week').toDate();
 
     const goalsCreatedUpToWeek = db.$with('goals_created_up_to_week').as(
         db.select({
             id: goals.id,
+            userId: goals.userId,
             title: goals.title,
             desiredWeeklyFrequency: goals.desiredWeeklyFrequency,
             createdAt: goals.createdAt,
         })
             .from(goals)
-            .where(lte(goals.createdAt, lastDayOfWeek))
+            .where(and(lte(goals.createdAt, lastDayOfWeek), eq(goals.userId, userId)))
     );
 
     const goalsCompletedInWeek = db.$with('goal_completed_in_week').as(
         db.select({
             id: goalCompletions.id,
+            userId: goalCompletions.userId,
             title: goals.title,
             completedAt: goalCompletions.createdAt,
             completedAtDate: sql/*sql*/`
@@ -31,7 +37,8 @@ export async function getWeekSummary() {
             .innerJoin(goals, eq(goals.id, goalCompletions.goalId))
             .where(and(
                 gte(goalCompletions.createdAt, firstDayOfWeek),
-                lte(goalCompletions.createdAt, lastDayOfWeek)
+                lte(goalCompletions.createdAt, lastDayOfWeek),
+                eq(goalCompletions.userId, userId)
             ))
             .orderBy(desc(goalCompletions.createdAt))
     )
