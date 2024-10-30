@@ -29,9 +29,7 @@ export async function createUser({ username, password }: CreateUserRequest) {
         password: hashedPassword // Armazenar a senha criptografada
     }).returning();
 
-    const user = result[0];
-
     return {
-        user
+        result
     };
 }
