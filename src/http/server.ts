@@ -8,12 +8,13 @@ import fastifyCors from '@fastify/cors';
 import { createUserRoute } from './routes/create-user';
 import { getAllUsers, login, } from './routes/get-users';
 import { protectedRoute } from './routes/authenticate';
+import { deleteGoalRoute } from './routes/delete-goal';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
     origin: '*',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'DELETE'],
 });
 
 app.setValidatorCompiler(validatorCompiler);
@@ -27,6 +28,7 @@ app.register(createUserRoute)
 app.register(getAllUsers)
 app.register(login)
 app.register(protectedRoute)
+app.register(deleteGoalRoute)
 
 app.listen({
     port: 3333,
