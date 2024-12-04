@@ -31,8 +31,9 @@ app.register(protectedRoute)
 app.register(deleteGoalRoute)
 
 app.listen({
+    host: '0.0.0.0',
     port: process.env.PORT ? Number(process.env.PORT) : 3333,
 }).then(() => {
-    console.log("HTTP server running on port 3333")
+    console.log("HTTP server running")
     console.log("Ctrl+C to stop")
 })
