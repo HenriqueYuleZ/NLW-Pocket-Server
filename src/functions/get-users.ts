@@ -4,6 +4,7 @@ import { eq, and } from "drizzle-orm";
 import bcrypt from 'bcrypt';
 import { z } from "zod";
 import jwt from 'jsonwebtoken';
+import { env } from '../env';
 
 export async function getUsers() {
     const allUsers = await db.select().from(users)
@@ -16,7 +17,7 @@ const loginSchema = z.object({
     password: z.string().min(1, "Password é obrigatório"),
 });
 
-const JWT_SECRET = "sua_chave_secreta_aqui";  //! TODO:Trocar por uma chave secreta segura nas variáveis de ambiente
+const JWT_SECRET = env.JWT_SECRET;
 
 export async function loginUser({ username, password }: { username: string, password: string }) {
     // Validação com Zod

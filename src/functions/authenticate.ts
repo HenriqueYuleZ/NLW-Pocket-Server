@@ -2,8 +2,9 @@ import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { JwtPayload } from 'jsonwebtoken';
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import jwt from 'jsonwebtoken';
+import { env } from '../env';
 
-const JWT_SECRET = "sua_chave_secreta_aqui";  //! TODO: trocar chave usada para assinar o token
+const JWT_SECRET = env.JWT_SECRET;
 
 export const authenticateToken: FastifyPluginAsync = async (app) => {
     app.addHook('preHandler', async (request, reply) => {
