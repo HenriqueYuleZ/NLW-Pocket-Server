@@ -32,6 +32,10 @@ app.register(login)
 app.register(protectedRoute)
 app.register(deleteGoalRoute)
 
+app.get('/status', async () => {
+    return { status: 'ok', timestamp: new Date() }
+})
+
 app.listen({
     host: '0.0.0.0',
     port: process.env.PORT ? Number(process.env.PORT) : 3333,
