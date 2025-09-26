@@ -13,8 +13,10 @@ import { deleteGoalRoute } from './routes/delete-goal';
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
-    origin: '*',
+    origin: 'https://intask-web.vercel.app',
     methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 });
 
 app.setValidatorCompiler(validatorCompiler);
